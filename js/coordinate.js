@@ -1,10 +1,45 @@
 $(document).ready(function() {
+  $( "#minbeds" ).on( "change", function() {
+    slider.slider( "value", this.selectedIndex + 1 );
+  });
+
   var width = 800;
   var height = 800;
-  var svg = d3.select("#svgcontainer")
+  var svg = d3.select("#svgContainer")
     .append("svg").attr("width", width).attr("height", height);
-  drawAxes(svg, width, height);
+  refresh(svg, width, height, 1);
+
+  var select = $( "#minbeds" );
+  var slider = $( "<div id='slider'></div>" )
+    .insertAfter( $("#sliderContainer") )
+    .slider({
+      min: 1,
+      max: 5,
+      range: "min",
+      value: select[ 0 ].selectedIndex + 1,
+      slide: function( event, ui ) {
+        select[ 0 ].selectedIndex = ui.value - 1;
+        refresh(svg, width, height, ui.value);
+      }
   });
+
+  function refresh(svg, width, height, scaleValue) {
+    svg.selectAll("*").remove();
+    var scale = mapScaleToSelect(scaleValue);
+    drawAxes(svg, width, height, scale);
+  }
+  });
+
+function mapScaleToSelect(selectValue) {
+  var map = {
+    '1': 40,
+    '2': 50,
+    '3': 72,
+    '4': 80,
+    '5': 100
+  };
+  return map[selectValue] ? map[selectValue] : 100;
+}
 
 function line(svg, coordinates, color="rgb(0,0,0)", strokeWidth=2) {
   svg.append("line")
@@ -24,10 +59,10 @@ function text(svg, coordinates, text, size="0.35em") {
     .text(text);
 }
 
-function drawAxes(svg, width, height) {
+function drawAxes(svg, width, height, scale) {
   var padding = 10;
-  drawXAxis(svg, width, height, padding);
-  drawYAxis(svg, width, height, padding);
+  drawXAxis(svg, width, height, padding, scale);
+  drawYAxis(svg, width, height, padding, scale);
   drawZero(svg, width, height, padding);
 }
 
@@ -39,9 +74,10 @@ function drawZero(svg, width, height, padding) {
       .text(0);
 }
 
-function drawXAxisNumbers(svg, width, height, padding) {
+function drawXAxisNumbers(svg, width, height, padding, scale) {
   var center = width / 2;
-  var fixedLengthMark = 40;
+  var fixedLengthMark = scale;
+  console.log(scale);
   var markSize = 10;
   for (var i = center+fixedLengthMark; i < width; i+=fixedLengthMark) {
     var mark = {
@@ -74,9 +110,9 @@ function drawXAxisNumbers(svg, width, height, padding) {
   }
 }
 
-function drawYAxisNumbers(svg, width, height, padding) {
+function drawYAxisNumbers(svg, width, height, padding, scale) {
   var center = height / 2;
-  var fixedLengthMark = 40;
+  var fixedLengthMark = scale;
   var markSize = 10;
   for (var i = center+fixedLengthMark; i < height; i+=fixedLengthMark) {
     var mark = {
@@ -173,7 +209,7 @@ function drawYArrows(svg, width, height, padding) {
   line(svg, coord);
 }
 
-function drawXAxis(svg, width, height, padding) {
+function drawXAxis(svg, width, height, padding, scale) {
   var center = {
     x: width/2,
     y: height/2,
@@ -185,12 +221,12 @@ function drawXAxis(svg, width, height, padding) {
     y2: center.y
   };
   line(svg, coord);
-  drawXAxisNumbers(svg, width, height, padding);
+  drawXAxisNumbers(svg, width, height, padding, scale);
   drawXArrows(svg, width, height, padding);
 }
 
 
-function drawYAxis(svg, width, height, padding) {
+function drawYAxis(svg, width, height, padding, scale) {
   var center = {
     x: width/2,
     y: height/2,
@@ -202,6 +238,6 @@ function drawYAxis(svg, width, height, padding) {
     y2: height - padding
   };
   line(svg, coord);
-  drawYAxisNumbers(svg, width, height, padding);
+  drawYAxisNumbers(svg, width, height, padding, scale);
   drawYArrows(svg, width, height, padding);
 }
