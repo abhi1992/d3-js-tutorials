@@ -77,7 +77,6 @@ function drawZero(svg, width, height, padding) {
 function drawXAxisNumbers(svg, width, height, padding, scale) {
   var center = width / 2;
   var fixedLengthMark = scale;
-  console.log(scale);
   var markSize = 10;
   for (var i = center+fixedLengthMark; i < width; i+=fixedLengthMark) {
     var mark = {
