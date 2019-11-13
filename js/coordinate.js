@@ -6,10 +6,18 @@ $(document).ready(function() {
   var width = 800;
   var height = 800;
   var svg = d3.select("#svgContainer")
-    .append("svg").attr("width", width).attr("height", height);
-  refresh(svg, width, height, 1);
+    .append("svg").attr("id", "svg").attr("width", width).attr("height", height);
+  refresh(svg, width, height, 1, 1);
 
   var select = $( "#minbeds" );
+
+  var multiplier = parseFloat($("#multiplierSelect").val());
+
+  $('#multiplierSelect').on('change', function() {
+    var multiplier = parseFloat(this.value);
+    refresh(svg, width, height, $("#minbeds").val(), multiplier);
+  });
+
   var slider = $( "<div id='slider'></div>" )
     .insertAfter( $("#sliderContainer") )
     .slider({
@@ -18,15 +26,16 @@ $(document).ready(function() {
       range: "min",
       value: select[ 0 ].selectedIndex + 1,
       slide: function( event, ui ) {
+        multiplier = parseFloat($("#multiplierSelect").val());
         select[ 0 ].selectedIndex = ui.value - 1;
-        refresh(svg, width, height, ui.value);
+        refresh(svg, width, height, ui.value, multiplier);
       }
   });
 
-  function refresh(svg, width, height, scaleValue) {
+  function refresh(svg, width, height, scaleValue, multiplier) {
     svg.selectAll("*").remove();
     var scale = mapScaleToSelect(scaleValue);
-    drawAxes(svg, width, height, scale);
+    drawAxes(svg, width, height, scale, multiplier);
   }
   });
 
@@ -39,6 +48,52 @@ function mapScaleToSelect(selectValue) {
     '5': 100
   };
   return map[selectValue] ? map[selectValue] : 100;
+}
+
+function getPadding(padding, axisType, coordinateNum) {
+  if(coordinateNum > 99) {
+    if (axisType === 'y') {
+      return padding * 4.5;
+    } else {
+      return padding * 1.2;
+    }
+  } else if(coordinateNum > 9) {
+    if (axisType === 'y') {
+      return padding * 1.5;
+    } else {
+      return padding * 1;
+    }
+  } else if(coordinateNum < -99) {
+    if (axisType === 'y') {
+      return padding * 2.7;
+    } else if (axisType === '-y') {
+      return padding * 3.3;
+    } else if (axisType === '-x') {
+      return padding * 1.7;
+    } else {
+      return padding * 1;
+    }
+  } else if(coordinateNum < -9) {
+    if (axisType === 'y') {
+      return padding * 2;
+    } else if (axisType === '-y') {
+      return padding * 2.4;
+    } else if (axisType === '-x') {
+      return padding * 1;
+    } else {
+      return padding * 0.8;
+    }
+  }  else if(coordinateNum < 0) {
+    if (axisType === 'y') {
+      return padding * 1.3;
+    } else if (axisType === '-y') {
+      return padding * 1.8;
+    } else if (axisType === '-x') {
+      return padding * .7;
+    } else {
+      return padding * 0.5;
+    }
+  }
 }
 
 function line(svg, coordinates, color="rgb(0,0,0)", strokeWidth=2) {
@@ -59,10 +114,10 @@ function text(svg, coordinates, text, size="0.35em") {
     .text(text);
 }
 
-function drawAxes(svg, width, height, scale) {
+function drawAxes(svg, width, height, scale, multiplier) {
   var padding = 10;
-  drawXAxis(svg, width, height, padding, scale);
-  drawYAxis(svg, width, height, padding, scale);
+  drawXAxis(svg, width, height, padding, scale, multiplier);
+  drawYAxis(svg, width, height, padding, scale, multiplier);
   drawZero(svg, width, height, padding);
 }
 
@@ -74,7 +129,11 @@ function drawZero(svg, width, height, padding) {
       .text(0);
 }
 
-function drawXAxisNumbers(svg, width, height, padding, scale) {
+function getCoordinateNumber(current, fixedLengthMark, center, multiplier) {
+  return multiplier * (current/fixedLengthMark-center/fixedLengthMark);
+}
+
+function drawXAxisNumbers(svg, width, height, padding, scale, multiplier) {
   var center = width / 2;
   var fixedLengthMark = scale;
   var markSize = 10;
@@ -85,12 +144,13 @@ function drawXAxisNumbers(svg, width, height, padding, scale) {
       x2: i,
       y2: center+markSize
     };
+    var coordinateNum = getCoordinateNumber(i, fixedLengthMark, center, multiplier);
     line(svg, mark);
     var coord = {
-      x1: mark.x1-padding*.5,
+      x1: mark.x1-getPadding(padding, 'x', -coordinateNum),
       y1: mark.y2+padding
     };
-    text(svg, coord, function(d) { return i/fixedLengthMark-center/fixedLengthMark; });  
+    text(svg, coord, function(d) { return coordinateNum; });  
   }
 
   for (var i = center-fixedLengthMark; i > padding; i-=fixedLengthMark) {
@@ -100,16 +160,17 @@ function drawXAxisNumbers(svg, width, height, padding, scale) {
       x2: i,
       y2: center+markSize
     };
+    var coordinateNum = getCoordinateNumber(i, fixedLengthMark, center, multiplier);
     line(svg, mark);
     var coord = {
-      x1: mark.x1-padding*.5,
+      x1: mark.x1-getPadding(padding, '-x', coordinateNum),
       y1: mark.y2+padding
     };
-    text(svg, coord, function(d) { return i/fixedLengthMark-center/fixedLengthMark; });
+    text(svg, coord, function(d) { return coordinateNum; });
   }
 }
 
-function drawYAxisNumbers(svg, width, height, padding, scale) {
+function drawYAxisNumbers(svg, width, height, padding, scale, multiplier) {
   var center = height / 2;
   var fixedLengthMark = scale;
   var markSize = 10;
@@ -120,12 +181,13 @@ function drawYAxisNumbers(svg, width, height, padding, scale) {
       x2: center+markSize,
       y2: i
     };
+    var coordinateNum = -1 * getCoordinateNumber(i, fixedLengthMark, center, multiplier);
     line(svg, mark);
     const coord = {
-      x1: mark.x1-padding*1.5,
+      x1: mark.x1-getPadding(padding, '-y', coordinateNum),
       y1: mark.y2
     };
-    text(svg, coord, function(d) { return i/fixedLengthMark-center/fixedLengthMark; });
+    text(svg, coord, function(d) { return coordinateNum; });
   }
 
   for (var i = center-fixedLengthMark; i > padding; i-=fixedLengthMark) {
@@ -135,12 +197,13 @@ function drawYAxisNumbers(svg, width, height, padding, scale) {
       x2: center+markSize,
       y2: i
     };
+    var coordinateNum = -1 * getCoordinateNumber(i, fixedLengthMark, center, multiplier);
     line(svg, mark);
     const coord = {
-      x1: mark.x1-padding*1.5,
+      x1: mark.x1-getPadding(padding, 'y', -coordinateNum),
       y1: mark.y2
     };
-    text(svg, coord, function(d) { return i/fixedLengthMark-center/fixedLengthMark; });
+    text(svg, coord, function(d) { return coordinateNum; });
   }
 }
 
@@ -208,7 +271,7 @@ function drawYArrows(svg, width, height, padding) {
   line(svg, coord);
 }
 
-function drawXAxis(svg, width, height, padding, scale) {
+function drawXAxis(svg, width, height, padding, scale, multiplier) {
   var center = {
     x: width/2,
     y: height/2,
@@ -220,12 +283,12 @@ function drawXAxis(svg, width, height, padding, scale) {
     y2: center.y
   };
   line(svg, coord);
-  drawXAxisNumbers(svg, width, height, padding, scale);
+  drawXAxisNumbers(svg, width, height, padding, scale, multiplier);
   drawXArrows(svg, width, height, padding);
 }
 
 
-function drawYAxis(svg, width, height, padding, scale) {
+function drawYAxis(svg, width, height, padding, scale, multiplier) {
   var center = {
     x: width/2,
     y: height/2,
@@ -237,6 +300,6 @@ function drawYAxis(svg, width, height, padding, scale) {
     y2: height - padding
   };
   line(svg, coord);
-  drawYAxisNumbers(svg, width, height, padding, scale);
+  drawYAxisNumbers(svg, width, height, padding, scale, multiplier);
   drawYArrows(svg, width, height, padding);
 }
