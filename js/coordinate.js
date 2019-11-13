@@ -65,9 +65,9 @@ function getPadding(padding, axisType, coordinateNum) {
     }
   } else if(coordinateNum < -99) {
     if (axisType === 'y') {
-      return padding * 2.7;
+      return padding * 3.2;
     } else if (axisType === '-y') {
-      return padding * 3.3;
+      return padding * 3.9;
     } else if (axisType === '-x') {
       return padding * 1.7;
     } else {
@@ -77,7 +77,7 @@ function getPadding(padding, axisType, coordinateNum) {
     if (axisType === 'y') {
       return padding * 2;
     } else if (axisType === '-y') {
-      return padding * 2.4;
+      return padding * 2.8;
     } else if (axisType === '-x') {
       return padding * 1;
     } else {
