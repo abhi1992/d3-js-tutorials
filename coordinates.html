@@ -2,12 +2,15 @@
 <html>
   <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
   <link rel="stylesheet" href="css/coordinate.css?v1" />
+  <link rel="stylesheet" href="css/bootstrap.min.css" />
   <head>
-    <titls>Coodinates</titls>
+    <title>Coodinates</title>
   </head>
   <body>
     <div id="root">
-      <div id="sliderContainer">
+      <div id="row1-settings" class="sett-row-1">
+        <div id="sliderContainer" class="col-lg-3 col-md-3, col-sm-3 col-xs-12 slider-container">
+          <label class="slider-label">Grid Slider</label>
           <select name="minbeds" id="minbeds" style="display:none">
             <option>1</option>
             <option>2</option>
@@ -16,16 +19,18 @@
             <option>5</option>
             <option>6</option>
           </select>
-      </div>
-      <div id="multiplierContainer">
-          <select id="multiplierSelect">
-              <option value="1" selected>1</option>
-              <option value="2">2</option>
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
-            </select>
+        </div>
+        <div id="multiplierContainer" class="col-lg-3 col-md-3, col-sm-3 col-xs-12 multiplier-container">
+          <label class="slider-label">Multiplier</label>  
+          <select id="multiplierSelect" class="form-control multiplier-select">
+            <option value="1" selected>1</option>
+            <option value="2">2</option>
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
       </div>
       <div id="svgContainer">
         
@@ -35,5 +40,6 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="js/d3.min.js"></script>
     <script src="js/coordinate.js"></script>
+    <script src="js/bootstrap.min.js"></script>
   </body>
 </html>

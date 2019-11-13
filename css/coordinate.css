@@ -1,3 +1,32 @@
 body {
   /* background-color: #b00020; */
 }
+
+.sett-row-1 {
+  background: rgb(100, 100, 100);
+  padding: 10px;
+}
+
+.multiplier-select {
+  border-radius: 0px;
+  width: 30%;
+  height: 25px;
+}
+
+.multiplier-container {
+  margin: 10px;
+  background: rgb(200, 200, 200);
+  padding: 20px;
+}
+
+.slider-container {
+  margin: 10px;
+  background: rgb(200, 200, 200);
+  padding: 20px;
+}
+.slider-label {
+  font-size: 15px;
+}
+.slider {
+  border-radius: 0px !important;
+}
