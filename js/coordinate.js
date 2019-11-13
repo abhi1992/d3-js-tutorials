@@ -18,7 +18,7 @@ $(document).ready(function() {
     refresh(svg, width, height, $("#minbeds").val(), multiplier);
   });
 
-  var slider = $( "<div id='slider' class=\"slider\"></div>" )
+  var slider = $( "<div id='slider' class=\"grid-slider\"></div>" )
     .insertAfter( $("#minbeds") )
     .slider({
       min: 1,
